@@ -1,0 +1,39 @@
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Collections;
+
+public class RestTemplateWrapper {
+
+    private final RestTemplate restTemplate;
+
+    public RestTemplateWrapper() {
+        this.restTemplate = new RestTemplate();
+    }
+
+    public <T> T get(String url, Class<T> responseType) {
+        ResponseEntity<T> responseEntity = restTemplate.exchange(url, HttpMethod.GET, createHttpEntity(), responseType);
+        return responseEntity.getBody();
+    }
+
+    public <T> T post(String url, Object request, Class<T> responseType) {
+        ResponseEntity<T> responseEntity = restTemplate.exchange(url, HttpMethod.POST, createHttpEntity(request), responseType);
+        return responseEntity.getBody();
+    }
+
+    private HttpEntity<Object> createHttpEntity(Object request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        return new HttpEntity<>(request, headers);
+    }
+
+    private HttpEntity<Object> createHttpEntity() {
+        return createHttpEntity(null);
+    }
+}
